@@ -1,0 +1,143 @@
+import { STATUS_STASK } from "@/common/Text";
+
+const mapStatusSelectOption = () => {
+  const selectOptions = [{ value: "ALL", label: "All status" }];
+  for (const key in STATUS_STASK) {
+    selectOptions.push({ value: key, label: STATUS_STASK[key] });
+  }
+
+  return selectOptions;
+};
+
+const mapWarehouseSelectOption = (warehouseOptions = []) => {
+  const result = [{ value: "ALL", label: "All warehouse" }];
+
+  const seenWarehouses = new Set(); // Track seen warehouses
+
+  warehouseOptions.forEach(({ warehouse }) => {
+    if (!seenWarehouses.has(warehouse) && warehouse) {
+      seenWarehouses.add(warehouse);
+      result.push({ value: warehouse, label: warehouse });
+    }
+  });
+
+  return result;
+};
+
+const STATUS_MAP = {
+  DRAFT: "Todo",
+  IN_PROGRESS: "In Progress",
+  COMPLETED: "Completed",
+};
+
+const mapStatusApiResult = (tasks = []) => {
+  return tasks.map((task) => {
+    task.status = STATUS_MAP[task?.status] || STATUS_MAP.IN_PROGRESS;
+    return task;
+  });
+};
+
+const tasksMockupData = [
+  {
+    id: 1,
+    name: "Can Opener",
+    location: "Drawer - 7",
+    dueDate: "2024-03-16",
+    deliveryDate: "2024-03-25",
+    status: STATUS_STASK.COMPLETED,
+  },
+  {
+    id: 2,
+    name: "Spatula",
+    location: "Shelf - 5",
+    dueDate: "2024-03-12",
+    deliveryDate: "2024-03-25",
+    status: STATUS_STASK.COMPLETED,
+  },
+  {
+    id: 3,
+    name: "Cutting Board",
+    location: "Drawer - 5",
+    dueDate: "2024-03-19",
+    deliveryDate: "2024-03-22",
+    status: STATUS_STASK.IN_PROGRESS,
+  },
+  {
+    id: 4,
+    name: "Colander",
+    location: "Drawer - 5",
+    dueDate: "2024-03-16",
+    deliveryDate: "2024-03-23",
+    status: STATUS_STASK.TODO,
+  },
+  {
+    id: 5,
+    name: "Pan",
+    location: "Shelf - 1",
+    dueDate: "2024-03-09",
+    deliveryDate: "2024-03-25",
+    status: STATUS_STASK.TODO,
+  },
+  {
+    id: 6,
+    name: "Colander",
+    location: "Drawer - 6",
+    dueDate: "2024-03-07",
+    deliveryDate: "2024-03-22",
+    status: STATUS_STASK.IN_PROGRESS,
+  },
+  {
+    id: 7,
+    name: "Cutting Board",
+    location: "Drawer - 4",
+    dueDate: "2024-03-06",
+    deliveryDate: "2024-03-24",
+    status: STATUS_STASK.TODO,
+  },
+  {
+    id: 8,
+    name: "Pan",
+    location: "Shelf - 2",
+    dueDate: "2024-03-09",
+    deliveryDate: "2024-03-22",
+    status: STATUS_STASK.TODO,
+  },
+  {
+    id: 9,
+    name: "Pan",
+    location: "Drawer - 1",
+    dueDate: "2024-03-16",
+    deliveryDate: "2024-03-26",
+    status: STATUS_STASK.COMPLETED,
+  },
+  {
+    id: 10,
+    name: "Colander",
+    location: "Shelf - 6",
+    dueDate: "2024-03-07",
+    deliveryDate: "2024-03-25",
+    status: STATUS_STASK.COMPLETED,
+  },
+];
+
+const taskDetailMockData = {
+  id: "111",
+  status: STATUS_STASK.COMPLETED,
+  description: "Move the box from HCM to HN city",
+  nameProduct: "Refrigerator",
+  deliveryDate: "12-12-2024",
+  deliveryTime: "5",
+  addressCustomer:
+    "Chi nhánh 6 (Lab 6): Tòa nhà TMA, Công viên phần mềm Quang Trung, P. Tân Chánh Hiệp, Quận 12",
+  numberPhoneCustomer: "(028) 3997 8000",
+  noticed:
+    "Enter your preferred truck driving location to personalize recommendations for the best driving .",
+};
+
+export {
+  mapStatusSelectOption,
+  mapWarehouseSelectOption,
+  tasksMockupData,
+  taskDetailMockData,
+  mapStatusApiResult,
+};
