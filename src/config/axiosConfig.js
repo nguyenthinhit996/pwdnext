@@ -4,6 +4,7 @@ const baseURL = process.env.REACT_APP_API_URL || "http://47.128.73.228:5000/"; /
 
 const instance = axios.create({
   baseURL,
+  httpsAgent: new https.Agent({ rejectUnauthorized: false }),
   // Add additional default configurations here if needed (e.g., headers, interceptors)
 });
 
