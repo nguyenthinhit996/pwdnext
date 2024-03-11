@@ -3,18 +3,20 @@
 import TaskListItem from "@/components/TaskListItem";
 import Box from "@mui/material/Box";
 import SelectInput from "@/components/common/SelectInput";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useContext } from "react";
 import { mapStatusSelectOption, mapWarehouseSelectOption } from "@/util/Utils";
 import TaskListTable from "@/components/TaskListTable";
 import Typography from "@mui/material/Typography";
 import axiosInstance from "@/config/axiosConfig";
 import { mapStatusApiResult } from "@/util/Utils";
 import { STATUS_STASK } from "@/common/Text";
+import { AuthContext } from "@/context/AuthContext";
 
 const TaskList = () => {
   const [filteredStatus, setFilteredStatus] = useState("ALL");
   const [filteredWarehouse, setFilteredWarehouse] = useState("ALL");
   const [data, setData] = useState([]);
+  const { user } = useContext(AuthContext);
 
   const statusValues = useMemo(() => mapStatusSelectOption(), []);
   const warehouseValues = useMemo(() => mapWarehouseSelectOption(data), [data]);

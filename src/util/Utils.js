@@ -30,11 +30,15 @@ const STATUS_MAP = {
   COMPLETED: "Completed",
 };
 
-const mapStatusApiResult = (tasks = []) => {
+const mapStatusApiResult = (tasks = [], userId) => {
   return tasks.map((task) => {
     task.status = STATUS_MAP[task?.status] || STATUS_MAP.IN_PROGRESS;
     return task;
   });
+
+  // .filter(
+  //   (task) => task.cur_assignee_id === null || task.cur_assignee_id === userId
+  // )
 };
 
 const tasksMockupData = [
@@ -134,10 +138,22 @@ const taskDetailMockData = {
     "Enter your preferred truck driving location to personalize recommendations for the best driving .",
 };
 
+const STEP_STATUS_MAP = {
+  0: "STEP2",
+  1: "STEP3",
+  2: "COMPLETED",
+};
+
+const mapTaskStatus = (status) => {
+  return STATUS_MAP?.[status] || STATUS_STASK.IN_PROGRESS;
+};
+
 export {
   mapStatusSelectOption,
   mapWarehouseSelectOption,
   tasksMockupData,
   taskDetailMockData,
   mapStatusApiResult,
+  STEP_STATUS_MAP,
+  mapTaskStatus,
 };

@@ -2,6 +2,7 @@
 
 import { Box } from "@mui/material";
 import React, { useContext, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import DetailTaskComponent from "@/components/DetailTaks";
 import { StyledStackLayOut } from "@/common/CustomizeMUI";
 import axiosInstance from "@/config/axiosConfig";
@@ -12,7 +13,7 @@ const DetailTask = ({ params }) => {
   const [task, setTask] = useState({});
   const [error, setError] = useState();
   const { user } = useContext(AuthContext);
-  console.log(user?.userId);
+  const router = useRouter();
 
   const getTaskDetail = async () => {
     try {
@@ -41,7 +42,7 @@ const DetailTask = ({ params }) => {
         userId: user?.userId,
       });
       if (data) {
-        let url = "/journey?id=" + data?.id;
+        let url = `/journey?id=${data.id}`;
         router.push(url);
       }
     } catch (err) {

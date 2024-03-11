@@ -1,15 +1,14 @@
 import { Typography } from "@mui/material";
 import { Box, Stack } from "@mui/system";
-import ImageListItem from "@mui/material/ImageListItem";
-import Image from "next/image";
 import { TextareaCus, ButtonPrimary } from "@/common/CustomizeMUI";
 import HorizontalLinearStepper from "@/common/HorizontalLinearStepper";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useTheme, useMediaQuery } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
-import { Try } from "@mui/icons-material";
 import axiosInstance from "@/config/axiosConfig";
+import { AuthContext } from "@/context/AuthContext";
+import { STEP_STATUS_MAP } from "@/util/Utils";
 
 const mockData = {
   idtask: 12,
@@ -50,29 +49,42 @@ const JourneyComponent = (props) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
-  console.log(id);
+  const step = searchParams.get("step");
+  const stepNumber = step ? Number.parseInt(step?.at(-1)) : 1;
+  const { user } = useContext(AuthContext);
 
   // Define your media queries using MUI's breakpoint functions or custom queries
   const isMobile = useMediaQuery(theme.breakpoints.down("sm")); // Up to medium size screens
 
   const [dataForm, setDataForm] = useState();
   let currentStepData = dataForm?.steps[dataForm?.currentStep] || {};
+  const noteRef = useRef();
 
-  const handleOnClick = (currentStepInput) => {
-    currentStepInput = currentStepInput + 1;
-    console.log("currentStepInput ", currentStepInput);
-    if (currentStepInput === dataForm.steps.length) {
-      console.log(" dataForm.steps.length ", dataForm.steps.length);
-      setDataForm({
-        ...dataForm,
-        currentStep: currentStepInput,
-        isDone: true,
-      });
-    } else {
-      setDataForm({
-        ...dataForm,
-        currentStep: currentStepInput,
-      });
+  const handleOnClick = async (currentStepInput) => {
+    try {
+      const payload = {
+        userId: user.userId,
+        status: STEP_STATUS_MAP[dataForm.currentStep],
+        note: noteRef.current.value,
+      };
+      await axiosInstance.put(`/tasks/${id}/progress`, payload);
+      currentStepInput = currentStepInput + 1;
+      console.log("currentStepInput ", currentStepInput);
+      if (currentStepInput === dataForm.steps.length) {
+        console.log(" dataForm.steps.length ", dataForm.steps.length);
+        setDataForm({
+          ...dataForm,
+          currentStep: currentStepInput,
+          isDone: true,
+        });
+      } else {
+        setDataForm({
+          ...dataForm,
+          currentStep: currentStepInput,
+        });
+      }
+    } catch (err) {
+      console.log(err);
     }
   };
 
@@ -84,7 +96,7 @@ const JourneyComponent = (props) => {
     const getTaskDetail = async () => {
       try {
         const { data } = await axiosInstance.get(`/tasks/${id}`);
-        setDataForm({ ...data?.instruction, currentStep: 0 });
+        setDataForm({ ...data?.instruction, currentStep: stepNumber - 1 });
       } catch (err) {
         console.log(err);
       }
@@ -130,9 +142,14 @@ const JourneyComponent = (props) => {
         </Stack>
         <Box>
           <Typography>Note</Typography>
-          <TextareaCus minRows="5" sx={{ width: "100%" }} />
+          <TextareaCus
+            minRows="5"
+            sx={{ width: "100%" }}
+            ref={noteRef}
+            defaultValue={currentStepData?.note ?? ""}
+          />
         </Box>
-        <ButtonPrimary onClick={() => handleOnClick(dataForm.currentStep)}>
+        <ButtonPrimary onClick={() => handleOnClick(dataForm?.currentStep)}>
           Continue
         </ButtonPrimary>
       </Stack>

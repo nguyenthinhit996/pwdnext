@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, use } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { app } from "@/config/firebase";
 import axiosInstance from "@/config/axiosConfig";
@@ -23,20 +23,22 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    const getUserIdApi = async (localId) => {
+    const getUserIdApi = async () => {
       try {
         const { data } = await axiosInstance.get(
-          `/users?firebase_id=${localId}`
+          `/users?firebase_id=${user?.uid}`
         );
         if (data?.[0]) {
-          setUser((prev) => ({ ...prev, userId: data[0].id }));
+          setUser((prev) => ({ ...prev, userId: Number.parseInt(data[0].id) }));
         }
       } catch (error) {
         throw error;
       }
     };
 
-    getUserIdApi(user?.uid);
+    if (user?.uid) {
+      getUserIdApi();
+    }
   }, [user?.uid]);
 
   return (

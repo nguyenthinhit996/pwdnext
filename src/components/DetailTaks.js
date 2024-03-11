@@ -3,6 +3,7 @@ import { Box, Stack, Typography, styled, Alert } from "@mui/material";
 import BedgeStatus from "@/common/BadgeStatus";
 import { STATUS_STASK } from "@/common/Text";
 import { isEmpty } from "lodash";
+import { mapTaskStatus } from "@/util/Utils";
 
 import TextField from "@mui/material/TextField";
 
@@ -40,6 +41,7 @@ const StyleTextField = styled(TextField)(({ theme }) => ({
 }));
 
 const DetailTaskComponent = ({ data, error, handleOnClick }) => {
+  console.log(data);
   const theme = useTheme(); // Access the theme for breakpoint values
 
   // Define your media queries using MUI's breakpoint functions or custom queries
@@ -47,6 +49,30 @@ const DetailTaskComponent = ({ data, error, handleOnClick }) => {
 
   const router = useRouter();
   console.log("data", data);
+
+  const renderButton = () => {
+    switch (data?.status) {
+      case "TODO":
+        return <ButtonPrimary onClick={handleOnClick}>Start</ButtonPrimary>;
+      case "DRAFT":
+        return <ButtonPrimary onClick={handleOnClick}>Start</ButtonPrimary>;
+      case "COMPLETED":
+        return (
+          <ButtonPrimary onClick={() => router.back()}>Back</ButtonPrimary>
+        );
+      default:
+        return (
+          <ButtonPrimary
+            onClick={() => {
+              let url = `/journey?id=${data.id}&step=${data?.status}`;
+              router.push(url);
+            }}
+          >
+            Continue
+          </ButtonPrimary>
+        );
+    }
+  };
 
   return (
     <Stack
@@ -74,7 +100,7 @@ const DetailTaskComponent = ({ data, error, handleOnClick }) => {
           }}
         >
           <Typography variant="h5">Describe Task</Typography>
-          <BedgeStatus status={data?.status} />
+          <BedgeStatus status={mapTaskStatus(data?.status)} />
         </Box>
         <Typography>{data?.instruction?.description}</Typography>
       </Box>
@@ -180,7 +206,7 @@ const DetailTaskComponent = ({ data, error, handleOnClick }) => {
         </Box>
       ) : undefined}
 
-      <ButtonPrimary onClick={handleOnClick}>Start</ButtonPrimary>
+      {renderButton(data?.status)}
     </Stack>
   );
 };

@@ -21,6 +21,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/config/firebase";
 import { AuthContext } from "@/context/AuthContext";
 import { requestPermission } from "@/util/Notification";
+import { ModalContext } from "@/context/ModalContext";
 
 const ERROR_MSG_MAP = {
   "auth/invalid-credential": "Invalid Email or Password",
@@ -35,6 +36,7 @@ const cb2 = (...rest) => {
 export default function SignIn() {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = React.useState(false);
+  const { handleOnMessage } = useContext(ModalContext);
 
   const router = useRouter();
   const { setUser } = useContext(AuthContext);
@@ -55,7 +57,7 @@ export default function SignIn() {
       console.log(userCredential);
       setUser(userCredential.user);
       localStorage.setItem("token", userCredential?.user?.accessToken);
-      await requestPermission(cb2, cb2);
+      await requestPermission(handleOnMessage, cb2);
       router.push("/tasks");
     } catch (error) {
       console.error({ ...error });
@@ -91,7 +93,7 @@ export default function SignIn() {
 
         backgroundImage: {
           xs: "url('/assets/img/login-bg-3.png')",
-          md: "url('/assets/img/login-bg (1).png')",
+          md: "url('/assets/img/login-bg-1.png')",
         },
         // backgroundRepeat: "no-repeat",
         backgroundSize: "cover",

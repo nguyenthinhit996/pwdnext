@@ -5,7 +5,7 @@ import { TextareaAutosize as BaseTextareaAutosize } from "@mui/base/TextareaAuto
 
 import { Stack } from "@mui/material";
 
-export const TextareaCus = (props) => {
+export const TextareaCus = React.forwardRef((props, ref) => {
   const blue = {
     100: "#DAECFF",
     200: "#b6daff",
@@ -64,8 +64,8 @@ export const TextareaCus = (props) => {
   `
   );
 
-  return <Textarea {...props} />;
-};
+  return <Textarea {...props} ref={ref} />;
+});
 
 export const StyleButtonPrimary = styled(Button)(({ theme }) => ({
   backgroundColor: theme.palette.buttonPrimary.main,

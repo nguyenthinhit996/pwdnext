@@ -6,6 +6,8 @@ import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import { Divider, styled, Badge } from "@mui/material";
+import { useRouter } from "next/navigation";
+import { ModalContext } from "@/context/ModalContext";
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
@@ -36,7 +38,10 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
   },
 }));
 
-export default function CustomListItem() {
+export default function CustomListItem({ notifications }) {
+  const { handleViewMessage } = React.useContext(ModalContext);
+  const router = useRouter();
+
   return (
     <Box sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}>
       <nav aria-label="main mailbox folders">
@@ -61,13 +66,23 @@ export default function CustomListItem() {
             </ListItemButton>
           </StyledBadge>
           <Divider />
-          <ListItemButton>
-            <ListItemText
-              sx={{ ml: 4 }}
-              primary="New job 2"
-              secondary="Look perfect, send it for techinical review tomorrow!"
-            />
-          </ListItemButton>
+          {notifications?.map((msg) => {
+            return (
+              <ListItemButton
+                onClick={() => {
+                  handleViewMessage(msg.id);
+                  msg?.body?.taskId &&
+                    router.push(`/tasks/${msg.body.taskId}/detail`);
+                }}
+              >
+                <ListItemText
+                  sx={{ ml: 4 }}
+                  primary={msg.title}
+                  secondary={msg.body.text}
+                />
+              </ListItemButton>
+            );
+          })}
         </List>
       </nav>
     </Box>

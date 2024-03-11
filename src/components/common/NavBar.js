@@ -8,22 +8,13 @@ import BasicTabs from "@/components/common/BasicTabs";
 import { ModalContext } from "@/context/ModalContext";
 import { useContext } from "react";
 
-const notifications = [
-  {
-    id: 0,
-    label: "First notification",
-  },
-  {
-    id: 1,
-    label: "Second notification",
-  },
-];
-
 const NavBar = () => {
   // const [open, setOpen] = useState(false);
-  const { open, setOpen } = useContext(ModalContext);
+  const { open, setOpen, notifications } = useContext(ModalContext);
   const [anchorEl, setAnchorEl] = useState(null);
   const id = useMemo(() => (open ? "simple-popover" : undefined), [open]);
+
+  const unreadMessageCount = notifications?.filter((msg) => !msg.isRead).length;
 
   const handleOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -79,7 +70,7 @@ const NavBar = () => {
             anchorEl={anchorEl}
             sx={{ pl: 0, pb: 0 }}
           >
-            <Badge color="error" badgeContent={0}>
+            <Badge color="error" badgeContent={unreadMessageCount}>
               <Avatar alt="Remy Sharp" src="/assets/img/bell64x64.png" />
             </Badge>
           </IconButton>
@@ -89,6 +80,7 @@ const NavBar = () => {
             open={open}
             anchorEl={anchorEl}
             handleClose={handleClose}
+            notifications={notifications}
           />
         </Grid>
         <Grid item id="avatar">

@@ -10,12 +10,20 @@ import CustomTabPanel from "./CustomTabPanel";
 import { Button, Link } from "@mui/material";
 import CustomListItem from "./CustomListItem";
 
-export default function BasicTabs({ id, anchorEl, handleClose, open }) {
+export default function BasicTabs({
+  id,
+  anchorEl,
+  handleClose,
+  open,
+  notifications,
+}) {
   const [value, setValue] = useState(0);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
+
+  const unReadNotifications = notifications?.filter((msg) => !msg.isRead);
 
   return (
     <Popover
@@ -60,10 +68,10 @@ export default function BasicTabs({ id, anchorEl, handleClose, open }) {
           </Tabs>
         </Box>
         <CustomTabPanel value={value} index={0}>
-          <CustomListItem />
+          <CustomListItem notifications={notifications} />
         </CustomTabPanel>
         <CustomTabPanel value={value} index={1}>
-          <CustomListItem />
+          <CustomListItem notifications={unReadNotifications} />
         </CustomTabPanel>
       </Box>
     </Popover>
