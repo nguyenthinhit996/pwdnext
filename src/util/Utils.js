@@ -160,6 +160,11 @@ const formatDatetime = (datetime) => {
   });
 };
 
+const getUserId = () => {
+  const userId = localStorage.getItem("userId");
+  return userId;
+};
+
 export {
   mapStatusSelectOption,
   mapWarehouseSelectOption,
@@ -169,4 +174,5 @@ export {
   STEP_STATUS_MAP,
   mapTaskStatus,
   formatDatetime,
+  getUserId,
 };

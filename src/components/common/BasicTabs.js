@@ -53,9 +53,6 @@ export default function BasicTabs({
           <Typography variant="h6" component="h6">
             Notifications
           </Typography>
-          <Button sx={{ textTransform: "none" }}>
-            <Link sx={{ textDecoration: "none" }}>Mark all as read</Link>
-          </Button>
         </Box>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <Tabs

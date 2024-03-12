@@ -13,26 +13,17 @@ import { useEffect } from "react";
 import { requestPermission } from "@/util/Notification";
 import BedgeStatus from "@/common/BadgeStatus";
 import { useContext } from "react";
-import { AuthContext } from "@/context/AuthContext";
 import axiosInstance from "@/config/axiosConfig";
 import { Box } from "@mui/material";
+import { ModalContext } from "@/context/ModalContext";
+import { getUserId } from "@/util/Utils";
 
 const TaskListTable = ({ tasks = [] }) => {
-  const { user } = useContext(AuthContext);
   const router = useRouter();
-
-  const getUserIdApi = async (uid) => {
-    try {
-      const { data } = await axiosInstance.get(`/users?firebase_id=${uid}`);
-      return data?.[0]?.id;
-    } catch (error) {
-      throw error;
-    }
-  };
+  const { handleOnMessage } = useContext(ModalContext);
+  const userId = getUserId();
 
   const cb2 = async (...rest) => {
-    console.log("callbacking ", user);
-    const id = await getUserIdApi(user?.uid);
     console.log("rest  ", rest);
 
     const payload = {
@@ -40,13 +31,13 @@ const TaskListTable = ({ tasks = [] }) => {
     };
 
     console.log("payload  ", payload);
-    console.log("id  ", id);
+    console.log("id  ", userId);
 
-    await axiosInstance.put(`/users/${Number.parseInt(id)}`, payload);
+    await axiosInstance.put(`/users/${userId}`, payload);
   };
 
   useEffect(() => {
-    requestPermission(cb2, cb2);
+    requestPermission(handleOnMessage, cb2);
   }, []);
 
   return (

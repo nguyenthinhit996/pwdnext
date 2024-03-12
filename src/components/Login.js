@@ -22,16 +22,25 @@ import { auth } from "@/config/firebase";
 import { AuthContext } from "@/context/AuthContext";
 import { requestPermission } from "@/util/Notification";
 import { ModalContext } from "@/context/ModalContext";
+import axiosInstance from "@/config/axiosConfig";
 
 const ERROR_MSG_MAP = {
   "auth/invalid-credential": "Invalid Email or Password",
   "auth/too-many-request": "Account has been disabled",
 };
 
+const getUserIdApi = async (uid) => {
+  try {
+    const { data } = await axiosInstance.get(`/users?firebase_id=${uid}`);
+    return data?.[0]?.id;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export default function SignIn() {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = React.useState(false);
-  const { handleOnMessage } = useContext(ModalContext);
 
   const router = useRouter();
   const { setUser } = useContext(AuthContext);
@@ -50,9 +59,14 @@ export default function SignIn() {
         password
       );
       console.log(userCredential);
-      setUser(userCredential.user);
-      localStorage.setItem("token", userCredential?.user?.accessToken);
-      router.push("/");
+      const id = await getUserIdApi(userCredential.user?.uid);
+      if (!!id) {
+        const userId = Number.parseInt(id);
+        setUser({ ...userCredential.user, userId });
+        localStorage.setItem("token", userCredential?.user?.accessToken);
+        localStorage.setItem("userId", userId);
+        router.push("/");
+      }
     } catch (error) {
       console.error({ ...error });
       setError(ERROR_MSG_MAP[error.code]);

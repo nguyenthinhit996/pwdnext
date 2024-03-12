@@ -41,56 +41,44 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
 export default function CustomListItem({ notifications }) {
   const { handleViewMessage } = React.useContext(ModalContext);
   const router = useRouter();
-  const [first, ...rest] = notifications;
 
   return (
     <Box sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}>
       <nav aria-label="main mailbox folders">
-        <List sx={{ display: "flex", flexDirection: "column" }}>
-          <StyledBadge
-            overlap="circular"
-            anchorOrigin={{ vertical: "top", horizontal: "left" }}
-            variant="dot"
-            sx={{
-              "& .MuiBadge-dot": {
-                top: "50%",
-                left: 30,
-              },
-            }}
-          >
-            <ListItemButton
-              onClick={() => {
-                handleViewMessage(msg.id);
-                msg?.body?.taskId &&
-                  router.push(`/tasks/${first.taskId}/detail`);
-              }}
-            >
-              <ListItemText
-                sx={{ ml: 4 }}
-                primary={first.title}
-                secondary={first.text}
-              />
-            </ListItemButton>
-          </StyledBadge>
-          <Divider />
-          {rest?.map((msg) => {
-            return (
-              <ListItemButton
-                onClick={() => {
-                  handleViewMessage(msg.id);
-                  msg?.body?.taskId &&
-                    router.push(`/tasks/${msg.taskId}/detail`);
-                }}
-              >
-                <ListItemText
-                  sx={{ ml: 4 }}
-                  primary={msg.title}
-                  secondary={msg.text}
-                />
-              </ListItemButton>
-            );
-          })}
-        </List>
+        {notifications?.length > 0 ? (
+          <List sx={{ display: "flex", flexDirection: "column" }}>
+            {notifications?.map((msg) => {
+              return (
+                <StyledBadge
+                  overlap="circular"
+                  anchorOrigin={{ vertical: "top", horizontal: "left" }}
+                  variant="dot"
+                  sx={{
+                    "& .MuiBadge-dot": {
+                      top: "50%",
+                      left: 30,
+                    },
+                  }}
+                >
+                  <ListItemButton
+                    onClick={() => {
+                      handleViewMessage(msg.id);
+                      msg?.taskId && router.push(`/tasks/${msg.taskId}/detail`);
+                    }}
+                  >
+                    <ListItemText
+                      sx={{ ml: 4 }}
+                      primary={msg?.title}
+                      secondary={msg?.text}
+                    />
+                  </ListItemButton>
+                </StyledBadge>
+              );
+            })}
+          </List>
+        ) : (
+          <ListItemText sx={{ p: 2 }} primary="Nothing to show" />
+        )}
       </nav>
     </Box>
   );

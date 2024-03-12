@@ -22,25 +22,6 @@ export const AuthProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    const getUserIdApi = async () => {
-      try {
-        const { data } = await axiosInstance.get(
-          `/users?firebase_id=${user?.uid}`
-        );
-        if (data?.[0]) {
-          setUser((prev) => ({ ...prev, userId: Number.parseInt(data[0].id) }));
-        }
-      } catch (error) {
-        throw error;
-      }
-    };
-
-    if (user?.uid) {
-      getUserIdApi();
-    }
-  }, [user?.uid]);
-
   return (
     <AuthContext.Provider value={{ user, setUser }}>
       {children}

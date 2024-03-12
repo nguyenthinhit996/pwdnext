@@ -8,15 +8,14 @@ import { mapStatusSelectOption, mapWarehouseSelectOption } from "@/util/Utils";
 import TaskListTable from "@/components/TaskListTable";
 import Typography from "@mui/material/Typography";
 import axiosInstance from "@/config/axiosConfig";
-import { mapStatusApiResult } from "@/util/Utils";
+import { mapStatusApiResult, getUserId } from "@/util/Utils";
 import { STATUS_STASK } from "@/common/Text";
-import { AuthContext } from "@/context/AuthContext";
 
 const TaskList = () => {
   const [filteredStatus, setFilteredStatus] = useState("ALL");
   const [filteredWarehouse, setFilteredWarehouse] = useState("ALL");
   const [data, setData] = useState([]);
-  const { user } = useContext(AuthContext);
+  const userId = getUserId();
 
   const statusValues = useMemo(() => mapStatusSelectOption(), []);
   const warehouseValues = useMemo(() => mapWarehouseSelectOption(data), [data]);
@@ -24,15 +23,15 @@ const TaskList = () => {
   useEffect(() => {
     (async () => {
       try {
-        if (user?.userId) {
+        if (userId) {
           const { data: resData } =
-            await axiosInstance.get(`/users/${user?.userId}/tasks
+            await axiosInstance.get(`/users/${userId}/tasks
         `);
           setData(mapStatusApiResult(resData));
         }
       } catch (error) {}
     })();
-  }, [user?.userId]);
+  }, [userId]);
 
   const finalData = useMemo(() => {
     const filteredData = data.filter(

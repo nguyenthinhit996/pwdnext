@@ -8,7 +8,7 @@ import { mapStatusSelectOption, mapWarehouseSelectOption } from "@/util/Utils";
 import TaskListTable from "@/components/TaskListTable";
 import Typography from "@mui/material/Typography";
 import axiosInstance from "@/config/axiosConfig";
-import { mapStatusApiResult } from "@/util/Utils";
+import { mapStatusApiResult, getUserId } from "@/util/Utils";
 import { STATUS_STASK } from "@/common/Text";
 import { AuthContext } from "@/context/AuthContext";
 import FullScreenDialog from "@/common/DialogNotificationFullScreen";
@@ -25,15 +25,17 @@ const TaskList = () => {
   const [filteredStatus, setFilteredStatus] = useState("ALL");
   const [filteredWarehouse, setFilteredWarehouse] = useState("ALL");
   const [data, setData] = useState([]);
-  const { user } = useContext(AuthContext);
 
   const statusValues = useMemo(() => mapStatusSelectOption(), []);
   const warehouseValues = useMemo(() => mapWarehouseSelectOption(data), [data]);
 
   useEffect(() => {
+    const userId = getUserId();
     (async () => {
       try {
-        const { data: resData } = await axiosInstance.get("/tasks");
+        const { data: resData } = await axiosInstance.get(
+          `/users/${userId}/tasks`
+        );
         setData(mapStatusApiResult(resData));
       } catch (error) {}
     })();
