@@ -5,6 +5,7 @@ const CURRENT_CACHE = `main-${CACHE_VERSION}`;
 // these are the routes we are going to cache for offline support
 const cacheFiles = [
   "/",
+  "/login",
   "/tasks",
   "/next.svg",
   "/vercel.svg",

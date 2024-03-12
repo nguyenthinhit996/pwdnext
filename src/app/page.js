@@ -1,18 +1,133 @@
 "use client";
-import { useEffect } from "react";
-import Login from "@/components/Login";
-import { useRouter } from "next/navigation";
 
-export default function Home() {
-  const router = useRouter();
+import TaskListItem from "@/components/TaskListItem";
+import Box from "@mui/material/Box";
+import SelectInput from "@/components/common/SelectInput";
+import { useMemo, useState, useEffect, useContext } from "react";
+import { mapStatusSelectOption, mapWarehouseSelectOption } from "@/util/Utils";
+import TaskListTable from "@/components/TaskListTable";
+import Typography from "@mui/material/Typography";
+import axiosInstance from "@/config/axiosConfig";
+import { mapStatusApiResult } from "@/util/Utils";
+import { STATUS_STASK } from "@/common/Text";
+import { AuthContext } from "@/context/AuthContext";
+import FullScreenDialog from "@/common/DialogNotificationFullScreen";
+import NavBar from "@/components/common/NavBar";
+import { useTheme, useMediaQuery } from "@mui/material";
+import { Guard } from "@/components/common/Guard.js";
+import { PulseLoader } from "react-spinners";
+const TaskList = () => {
+  const theme = useTheme(); // Access the theme for breakpoint values
+
+  // Define your media queries using MUI's breakpoint functions or custom queries
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm")); // Up to medium size screens
+
+  const [filteredStatus, setFilteredStatus] = useState("ALL");
+  const [filteredWarehouse, setFilteredWarehouse] = useState("ALL");
+  const [data, setData] = useState([]);
+  const { user } = useContext(AuthContext);
+
+  const statusValues = useMemo(() => mapStatusSelectOption(), []);
+  const warehouseValues = useMemo(() => mapWarehouseSelectOption(data), [data]);
+
   useEffect(() => {
-    // Attempt to retrieve the token from localStorage
-    const token = localStorage.getItem('token');
-    console.log('tokentokentokentokentoken', token);
-    // If a token is found, redirect to the /tasks route
-    if (token) {
-      router.push('/tasks');
-    }
-  }, [router]);
-  return <Login />;
-}
+    (async () => {
+      try {
+        const { data: resData } = await axiosInstance.get("/tasks");
+        setData(mapStatusApiResult(resData));
+      } catch (error) {}
+    })();
+  }, []);
+
+  const finalData = useMemo(() => {
+    const filteredData = data.filter(
+      (t) =>
+        (filteredStatus === "ALL" ||
+          t?.status === STATUS_STASK[filteredStatus]) &&
+        (filteredWarehouse === "ALL" || t?.warehouse === filteredWarehouse)
+    );
+
+    return filteredData.length === data.length ? data : filteredData;
+  }, [data?.length, filteredStatus, filteredWarehouse]);
+
+  console.log(finalData);
+
+  return (
+    <Guard>
+      <NavBar />
+      {isMobile && <FullScreenDialog />}
+      <Box
+        sx={{
+          display: "felx",
+          flexDirection: "column",
+          mt: "2rem",
+          ml: "2rem",
+          mr: "2rem",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: { xs: "right", sm: "space-between" },
+            alignItems: "center",
+            mb: "2rem",
+          }}
+          id="heading"
+        >
+          <Typography
+            variant="h6"
+            gutterBottom
+            sx={{
+              ml: "1rem",
+              display: {
+                xs: "none",
+                sm: "block",
+              },
+            }}
+          >
+            List task
+          </Typography>
+          <Box id="drop-down" sx={{ display: "flex", justifyContent: "end" }}>
+            <SelectInput
+              items={statusValues}
+              value={filteredStatus}
+              handleChange={setFilteredStatus}
+            />
+
+            <SelectInput
+              items={warehouseValues}
+              value={filteredWarehouse}
+              handleChange={setFilteredWarehouse}
+            />
+          </Box>
+        </Box>
+
+        <Box sx={{ display: { xs: "block", sm: "none" } }}>
+          {finalData.length > 0
+            ? finalData.map((item) => (
+                <TaskListItem task={item} key={item.id} />
+              ))
+            : null}
+          {finalData.length === 0 ? (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                width: "100%",
+                marginTop: "140px",
+              }}
+            >
+              <PulseLoader color="#36d7b7" size={15} />
+            </Box>
+          ) : null}
+        </Box>
+
+        <Box sx={{ display: { xs: "none", sm: "block" } }}>
+          <TaskListTable tasks={finalData} />
+        </Box>
+      </Box>
+    </Guard>
+  );
+};
+
+export default TaskList;

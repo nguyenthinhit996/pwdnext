@@ -95,9 +95,21 @@ const TaskList = () => {
       </Box>
 
       <Box sx={{ display: { xs: "block", sm: "none" } }}>
-        {finalData.map((item) => (
-          <TaskListItem task={item} key={item.id} />
-        ))}
+        {finalData.length > 0
+          ? finalData.map((item) => <TaskListItem task={item} key={item.id} />)
+          : null}
+        {
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              width: "100%",
+              marginTop: "30px",
+            }}
+          >
+            <PulseLoader color="#36d7b7" size={15} />
+          </Box>
+        }
       </Box>
 
       <Box sx={{ display: { xs: "none", sm: "block" } }}>

@@ -2,7 +2,7 @@
 import FullScreenDialog from "@/common/DialogNotificationFullScreen";
 import NavBar from "@/components/common/NavBar";
 import { useTheme, useMediaQuery } from "@mui/material";
-
+import { Guard } from "@/components/common/Guard.js"
 export default function TaskLayout({ children }) {
   const theme = useTheme(); // Access the theme for breakpoint values
 
@@ -10,10 +10,10 @@ export default function TaskLayout({ children }) {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm")); // Up to medium size screens
 
   return (
-    <>
+    <Guard>
       <NavBar />
       {isMobile && <FullScreenDialog />}
       {children}
-    </>
+    </Guard>
   );
 }

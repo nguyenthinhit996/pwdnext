@@ -52,7 +52,7 @@ export default function SignIn() {
       console.log(userCredential);
       setUser(userCredential.user);
       localStorage.setItem("token", userCredential?.user?.accessToken);
-      router.push("/tasks");
+      router.push("/");
     } catch (error) {
       console.error({ ...error });
       setError(ERROR_MSG_MAP[error.code]);
