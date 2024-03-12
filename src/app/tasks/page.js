@@ -24,11 +24,15 @@ const TaskList = () => {
   useEffect(() => {
     (async () => {
       try {
-        const { data: resData } = await axiosInstance.get("/tasks");
-        setData(mapStatusApiResult(resData));
+        if (user?.userId) {
+          const { data: resData } =
+            await axiosInstance.get(`/users/${user?.userId}/tasks
+        `);
+          setData(mapStatusApiResult(resData));
+        }
       } catch (error) {}
     })();
-  }, []);
+  }, [user?.userId]);
 
   const finalData = useMemo(() => {
     const filteredData = data.filter(

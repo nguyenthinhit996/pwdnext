@@ -28,11 +28,6 @@ const ERROR_MSG_MAP = {
   "auth/too-many-request": "Account has been disabled",
 };
 
-const cb2 = (...rest) => {
-  console.log("callbacking ");
-  console.log(rest);
-};
-
 export default function SignIn() {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = React.useState(false);
@@ -57,7 +52,6 @@ export default function SignIn() {
       console.log(userCredential);
       setUser(userCredential.user);
       localStorage.setItem("token", userCredential?.user?.accessToken);
-      await requestPermission(handleOnMessage, cb2);
       router.push("/tasks");
     } catch (error) {
       console.error({ ...error });

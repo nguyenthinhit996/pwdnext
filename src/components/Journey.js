@@ -89,7 +89,7 @@ const JourneyComponent = (props) => {
   };
 
   const handleOnClickBackToHomeScreen = () => {
-    router.push(`/tasks/${id}/detail`);
+    router.push("/tasks");
   };
 
   useEffect(() => {

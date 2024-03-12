@@ -10,9 +10,6 @@ import { app } from "@/config/firebase";
 // Get registration token. Initially this makes a network call, once retrieved
 // subsequent calls to getToken will return from cache.
 
-// const messaging = getMessaging(app);
-
-// const messaging = getMessaging(app);
 const messaging = (async () => {
   try {
     const isSupportedBrowser = await isSupported();

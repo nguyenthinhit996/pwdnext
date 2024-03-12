@@ -7,6 +7,7 @@ import DetailTaskComponent from "@/components/DetailTaks";
 import { StyledStackLayOut } from "@/common/CustomizeMUI";
 import axiosInstance from "@/config/axiosConfig";
 import { AuthContext } from "@/context/AuthContext";
+import { formatDatetime } from "@/util/Utils";
 
 const DetailTask = ({ params }) => {
   const id = params.id;
@@ -20,15 +21,7 @@ const DetailTask = ({ params }) => {
       const { data } = await axiosInstance.get(`/tasks/${id}`);
       const formatData = {
         ...data,
-        deliveryDate: new Date(data.due_date).toLocaleString("en-US", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-          hour: "numeric",
-          minute: "numeric",
-          second: "numeric",
-          timeZone: "UTC",
-        }),
+        deliveryDate: formatDatetime(data.due_date),
       };
       setTask(formatData);
     } catch (err) {
@@ -38,13 +31,8 @@ const DetailTask = ({ params }) => {
 
   const handleOnClick = async () => {
     try {
-      const { data } = await axiosInstance.put(`/tasks/${id}/self-assign`, {
-        userId: user?.userId,
-      });
-      if (data) {
-        let url = `/journey?id=${data.id}`;
-        router.push(url);
-      }
+      let url = `/journey?id=${task.id}`;
+      router.push(url);
     } catch (err) {
       setError(err.response?.data);
     }

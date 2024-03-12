@@ -30,9 +30,10 @@ const STATUS_MAP = {
   COMPLETED: "Completed",
 };
 
-const mapStatusApiResult = (tasks = [], userId) => {
+const mapStatusApiResult = (tasks = []) => {
   return tasks.map((task) => {
     task.status = STATUS_MAP[task?.status] || STATUS_MAP.IN_PROGRESS;
+    task.due_date = formatDatetime(task.due_date);
     return task;
   });
 
@@ -148,6 +149,17 @@ const mapTaskStatus = (status) => {
   return STATUS_MAP?.[status] || STATUS_STASK.IN_PROGRESS;
 };
 
+const formatDatetime = (datetime) => {
+  return new Date(datetime).toLocaleString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    timeZone: "UTC",
+  });
+};
+
 export {
   mapStatusSelectOption,
   mapWarehouseSelectOption,
@@ -156,4 +168,5 @@ export {
   mapStatusApiResult,
   STEP_STATUS_MAP,
   mapTaskStatus,
+  formatDatetime,
 };

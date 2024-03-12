@@ -41,6 +41,7 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
 export default function CustomListItem({ notifications }) {
   const { handleViewMessage } = React.useContext(ModalContext);
   const router = useRouter();
+  const [first, ...rest] = notifications;
 
   return (
     <Box sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}>
@@ -57,28 +58,34 @@ export default function CustomListItem({ notifications }) {
               },
             }}
           >
-            <ListItemButton sx={{ bgcolor: "grey.400" }}>
+            <ListItemButton
+              onClick={() => {
+                handleViewMessage(msg.id);
+                msg?.body?.taskId &&
+                  router.push(`/tasks/${first.taskId}/detail`);
+              }}
+            >
               <ListItemText
                 sx={{ ml: 4 }}
-                primary="New job refrigerator moving"
-                secondary="Look perfect, send it for techinical review tomorrow!"
+                primary={first.title}
+                secondary={first.text}
               />
             </ListItemButton>
           </StyledBadge>
           <Divider />
-          {notifications?.map((msg) => {
+          {rest?.map((msg) => {
             return (
               <ListItemButton
                 onClick={() => {
                   handleViewMessage(msg.id);
                   msg?.body?.taskId &&
-                    router.push(`/tasks/${msg.body.taskId}/detail`);
+                    router.push(`/tasks/${msg.taskId}/detail`);
                 }}
               >
                 <ListItemText
                   sx={{ ml: 4 }}
                   primary={msg.title}
-                  secondary={msg.body.text}
+                  secondary={msg.text}
                 />
               </ListItemButton>
             );

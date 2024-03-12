@@ -8,11 +8,44 @@ import IconButton from "@mui/material/IconButton";
 import ArrowRightAltIcon from "@mui/icons-material/ArrowRightAlt";
 import Tooltip from "@mui/material/Tooltip";
 import { useRouter } from "next/navigation";
-
+import { useEffect } from "react";
+import { requestPermission } from "@/util/Notification";
 import BedgeStatus from "@/common/BadgeStatus";
+import { useContext } from "react";
+import { AuthContext } from "@/context/AuthContext";
+import axiosInstance from "@/config/axiosConfig";
 
 const TaskListTable = ({ tasks = [] }) => {
+  const { user } = useContext(AuthContext);
   const router = useRouter();
+
+  const getUserIdApi = async (uid) => {
+    try {
+      const { data } = await axiosInstance.get(`/users?firebase_id=${uid}`);
+      return data?.[0]?.id;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const cb2 = async (...rest) => {
+    console.log("callbacking ", user);
+    const id = await getUserIdApi(user?.uid);
+    console.log("rest  ", rest);
+
+    const payload = {
+      deviceId: rest?.[0],
+    };
+
+    console.log("payload  ", payload);
+    console.log("id  ", id);
+
+    await axiosInstance.put(`/users/${Number.parseInt(id)}`, payload);
+  };
+
+  useEffect(() => {
+    requestPermission(cb2, cb2);
+  }, []);
 
   return (
     <Table sx={{ minWidth: 650 }} aria-label="simple table">

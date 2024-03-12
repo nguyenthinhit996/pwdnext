@@ -28,13 +28,14 @@ export const ModalContext = createContext({
 
 export const ModalProvider = ({ children }) => {
   const [open, setOpen] = useState(false);
-  const [notifications, setNotifications] = useState(mockNotifications);
+  const [notifications, setNotifications] = useState([]);
 
   const handleOnMessage = (message) => {
     console.log("MSG: ", message);
     const newMessage = {
       messageId: message.messageId,
-      ...message.notification,
+      title: message.notification.title,
+      ...message?.data,
       isRead: false,
     };
     setNotifications((prev) => [newMessage, ...prev]);

@@ -32,6 +32,9 @@ const cacheFiles = [
   "/assets/img/step2.png",
   "/assets/img/step3.png",
   "/assets/img/sticker.png",
+  "/offline",
+  "/offline.html",
+  "/assets/css/offline-style.css",
 ];
 
 // on activation we clean up the previously registered service workers
@@ -97,7 +100,9 @@ const fromNetwork = async (request, timeout) => {
 const fromCache = async (request) => {
   const cache = await caches.open(CURRENT_CACHE);
   let matching = await cache.match(request);
-  if (!matching) matching = await cache.match("/offline/");
+  if (!matching && request.mode === "navigate") {
+    matching = await cache.match("/offline.html");
+  }
   return matching;
 };
 
