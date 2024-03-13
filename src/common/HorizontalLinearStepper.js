@@ -3,12 +3,10 @@ import Box from "@mui/material/Box";
 import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
 import { styled } from "@mui/material";
 import { useTheme, useMediaQuery } from "@mui/material";
 
-const steps = ["Move To WareHouse", "Move To Customer", "Back To Station"];
+const steps = ["To WareHouse", "To Customer", "To Station"];
 
 const StyleStepLabel = styled(StepLabel)(({ theme }) => ({
   "& .MuiSvgIcon-root.Mui-active": {

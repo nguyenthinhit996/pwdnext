@@ -22,6 +22,7 @@ const DetailTask = ({ params }) => {
       const formatData = {
         ...data,
         deliveryDate: formatDatetime(data.due_date),
+        estimation_in_hours: data.estimation_in_hours + ":00",
       };
       setTask(formatData);
     } catch (err) {

@@ -3,14 +3,13 @@
 import TaskListItem from "@/components/TaskListItem";
 import Box from "@mui/material/Box";
 import SelectInput from "@/components/common/SelectInput";
-import { useMemo, useState, useEffect, useContext } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { mapStatusSelectOption, mapWarehouseSelectOption } from "@/util/Utils";
 import TaskListTable from "@/components/TaskListTable";
 import Typography from "@mui/material/Typography";
 import axiosInstance from "@/config/axiosConfig";
 import { mapStatusApiResult, getUserId } from "@/util/Utils";
 import { STATUS_STASK } from "@/common/Text";
-import { AuthContext } from "@/context/AuthContext";
 import FullScreenDialog from "@/common/DialogNotificationFullScreen";
 import NavBar from "@/components/common/NavBar";
 import { useTheme, useMediaQuery } from "@mui/material";
@@ -62,9 +61,8 @@ const TaskList = () => {
         sx={{
           display: "felx",
           flexDirection: "column",
-          mt: "2rem",
-          ml: "2rem",
-          mr: "2rem",
+          mt: { xs: "0.5rem", sm: "2rem" },
+          mx: { xs: "0.5rem", sm: "2rem" },
         }}
       >
         <Box

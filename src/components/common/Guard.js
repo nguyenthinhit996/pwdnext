@@ -11,10 +11,11 @@ export function Guard({ children }) {
 
   useEffect(() => {
     const token = localStorage.getItem("token") || "";
+    const userId = localStorage.getItem("userId") || "";
     if (loading) {
-      setLoading(!token);
+      setLoading(!token || !userId);
     }
-    if (!token) router.push("/login");
+    if (!token || !userId) router.push("/login");
   }, [router, loading]);
   if (loading) return <Loader />;
   return <>{children}</>;

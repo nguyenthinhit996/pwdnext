@@ -2,13 +2,12 @@ import { Typography } from "@mui/material";
 import { Box, Stack } from "@mui/system";
 import { TextareaCus, ButtonPrimary } from "@/common/CustomizeMUI";
 import HorizontalLinearStepper from "@/common/HorizontalLinearStepper";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTheme, useMediaQuery } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import axiosInstance from "@/config/axiosConfig";
-import { AuthContext } from "@/context/AuthContext";
-import { STEP_STATUS_MAP } from "@/util/Utils";
+import { STEP_STATUS_MAP, getUserId } from "@/util/Utils";
 
 const mockData = {
   idtask: 12,
@@ -51,7 +50,7 @@ const JourneyComponent = (props) => {
   const id = searchParams.get("id");
   const step = searchParams.get("step");
   const stepNumber = step ? Number.parseInt(step?.at(-1)) : 1;
-  const { user } = useContext(AuthContext);
+  const userIdRef = useRef();
 
   // Define your media queries using MUI's breakpoint functions or custom queries
   const isMobile = useMediaQuery(theme.breakpoints.down("sm")); // Up to medium size screens
@@ -63,7 +62,7 @@ const JourneyComponent = (props) => {
   const handleOnClick = async (currentStepInput) => {
     try {
       const payload = {
-        userId: user.userId,
+        userId: userIdRef.current,
         status: STEP_STATUS_MAP[dataForm.currentStep],
         note: noteRef.current.value,
       };
@@ -89,7 +88,7 @@ const JourneyComponent = (props) => {
   };
 
   const handleOnClickBackToHomeScreen = () => {
-    router.push("/tasks");
+    router.push("/");
   };
 
   useEffect(() => {
@@ -103,6 +102,7 @@ const JourneyComponent = (props) => {
     };
 
     getTaskDetail();
+    userIdRef.current = getUserId();
   }, [id]);
 
   const renderProcess = () => {

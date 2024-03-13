@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 const mockNotifications = [
   {
     id: 0,
@@ -21,6 +21,8 @@ const mockNotifications = [
   },
 ];
 
+const NOTIFICATIONS_KEY = "notifications";
+
 export const ModalContext = createContext({
   open: false,
   setOpen: () => {},
@@ -30,6 +32,13 @@ export const ModalProvider = ({ children }) => {
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
 
+  useEffect(() => {
+    const storedValue = localStorage.getItem(NOTIFICATIONS_KEY);
+    if (storedValue) {
+      setNotifications(JSON.parse(storedValue));
+    }
+  }, []);
+
   const handleOnMessage = (message) => {
     console.log("MSG: ", message);
     const newMessage = {
@@ -38,14 +47,20 @@ export const ModalProvider = ({ children }) => {
       ...message?.data,
       isRead: false,
     };
-    setNotifications((prev) => [newMessage, ...prev]);
+    setNotifications((prev) => {
+      const newNotifications = [newMessage, ...prev];
+      localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(newNotifications));
+      return newNotifications;
+    });
   };
 
   const handleViewMessage = (id) => {
     const index = notifications.findIndex((msg) => msg.id === id);
     const newNotifications = [...notifications];
     newNotifications[index].isRead = true;
+    localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(newNotifications));
     setNotifications(newNotifications);
+    setOpen(false);
   };
 
   return (

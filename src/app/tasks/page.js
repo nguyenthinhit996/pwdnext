@@ -76,7 +76,7 @@ const TaskList = () => {
             },
           }}
         >
-          List task
+          Task Management Dashboard
         </Typography>
         <Box id="drop-down" sx={{ display: "flex", justifyContent: "end" }}>
           <SelectInput

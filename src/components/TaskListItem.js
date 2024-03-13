@@ -20,6 +20,7 @@ const TaskListItem = ({ task }) => {
           border: "2px solid #35C2C1",
           borderRadius: "1rem",
           mb: "1rem",
+          py: "1rem",
           width: "100%",
           display: "flex",
           justifyContent: "space-between",

@@ -20,11 +20,12 @@ import * as yup from "yup";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/config/firebase";
 import { AuthContext } from "@/context/AuthContext";
-import { requestPermission } from "@/util/Notification";
+import {
+  requestPermissionLoginPage,
+  udpateTokenDeviceId,
+} from "@/util/Notification";
 import { ModalContext } from "@/context/ModalContext";
 import axiosInstance from "@/config/axiosConfig";
-import { updateTokenDevice } from "@/util/Notification";
-import { getTokenFirebase } from "@/util/Notification";
 
 const ERROR_MSG_MAP = {
   "auth/invalid-credential": "Invalid Email or Password",
@@ -52,6 +53,7 @@ export default function SignIn() {
   const handleMouseDownPassword = (event) => {
     event.preventDefault();
   };
+
   const handleLogin = async (values) => {
     setError("");
     const { email, password } = values;
@@ -68,10 +70,7 @@ export default function SignIn() {
         setUser({ ...userCredential.user, userId });
         localStorage.setItem("token", userCredential?.user?.accessToken);
         localStorage.setItem("userId", userId);
-
-        console.log("Notification requestPermission now");
-        await requestPermission(handleOnMessage);
-
+        await requestPermissionLoginPage(handleOnMessage, udpateTokenDeviceId);
         router.push("/");
       }
     } catch (error) {

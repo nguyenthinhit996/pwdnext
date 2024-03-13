@@ -1,7 +1,7 @@
 import { STATUS_STASK } from "@/common/Text";
 
 const mapStatusSelectOption = () => {
-  const selectOptions = [{ value: "ALL", label: "All status" }];
+  const selectOptions = [{ value: "ALL", label: "All Status" }];
   for (const key in STATUS_STASK) {
     selectOptions.push({ value: key, label: STATUS_STASK[key] });
   }
@@ -10,7 +10,7 @@ const mapStatusSelectOption = () => {
 };
 
 const mapWarehouseSelectOption = (warehouseOptions = []) => {
-  const result = [{ value: "ALL", label: "All warehouse" }];
+  const result = [{ value: "ALL", label: "All Warehouse" }];
 
   const seenWarehouses = new Set(); // Track seen warehouses
 
@@ -34,6 +34,7 @@ const mapStatusApiResult = (tasks = []) => {
   return tasks.map((task) => {
     task.status = STATUS_MAP[task?.status] || STATUS_MAP.IN_PROGRESS;
     task.due_date = formatDatetime(task.due_date);
+    task.estimation_in_hours = task.estimation_in_hours + ":00";
     return task;
   });
 
@@ -150,14 +151,7 @@ const mapTaskStatus = (status) => {
 };
 
 const formatDatetime = (datetime) => {
-  return new Date(datetime).toLocaleString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "numeric",
-    minute: "numeric",
-    timeZone: "UTC",
-  });
+  return new Date(datetime).toISOString().split("T")[0];
 };
 
 const getUserId = () => {

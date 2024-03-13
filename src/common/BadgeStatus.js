@@ -28,7 +28,7 @@ const renderFunctions = (stateInput) => {
     <Button
       variant={state.variant}
       color={state.color}
-      sx={{ borderRadius: 5 }}
+      sx={{ borderRadius: 5, cursor: "text", fontSize: { xs: "12px" } }}
       size="small"
     >
       {state.text}

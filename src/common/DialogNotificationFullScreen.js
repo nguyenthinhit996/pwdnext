@@ -21,15 +21,20 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import { Stack } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import Popover from "@mui/material/Popover";
+import { useRouter } from "next/navigation";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="left" ref={ref} {...props} />;
 });
 
 export default function FullScreenDialog() {
-  const { setOpen, open } = useContext(ModalContext);
+  const { setOpen, open, notifications, handleViewMessage } =
+    useContext(ModalContext);
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [isFilterd, setIsFilterd] = React.useState(false);
   const [openFilter, setFilter] = React.useState(false);
+  const [messages, setMessages] = React.useState([]);
+  const router = useRouter();
 
   const handleClickFilter = (event) => {
     setFilter(true);
@@ -41,12 +46,19 @@ export default function FullScreenDialog() {
     setAnchorEl(null);
   };
 
+  React.useEffect(() => {
+    const filteredNotifications = isFilterd
+      ? notifications.filter((item) => !item.isRead)
+      : notifications;
+    setMessages(filteredNotifications);
+  }, [isFilterd, notifications]);
+
   return (
     <Box>
       <Popover
         open={openFilter}
-        anchorEl={anchorEl}
         onClose={handleClose}
+        anchorEl={anchorEl}
         anchorOrigin={{
           vertical: "bottom",
           horizontal: "left",
@@ -54,11 +66,11 @@ export default function FullScreenDialog() {
       >
         <List>
           <ListItemButton>
-            <ListItemText primary="All" />
+            <ListItemText primary="All" onClick={() => setIsFilterd(false)} />
           </ListItemButton>
           <Divider />
           <ListItemButton>
-            <ListItemText primary="UnRead" />
+            <ListItemText primary="UnRead" onClick={() => setIsFilterd(true)} />
           </ListItemButton>
         </List>
       </Popover>
@@ -75,7 +87,7 @@ export default function FullScreenDialog() {
               display: "flex",
               flexDirection: "row",
               justifyContent: "space-between",
-              backgroundColor: "#42a5f5",
+              backgroundColor: "#F4721E",
             }}
           >
             <Stack
@@ -101,24 +113,29 @@ export default function FullScreenDialog() {
                 <FilterListIcon />
               </IconButton>
             </Stack>
-
-            <Button autoFocus color="inherit" onClick={() => {}}>
-              <DoneAllIcon />
-            </Button>
           </Toolbar>
         </AppBar>
-        <List>
-          <ListItemButton>
-            <ListItemText primary="Phone ringtone" secondary="Titania" />
-          </ListItemButton>
-          <Divider />
-          <ListItemButton>
+        {messages?.length > 0 ? (
+          <List>
+            {messages.map((msg) => (
+              <ListItemButton
+                onClick={() => {
+                  handleViewMessage(msg.id);
+                  msg?.taskId && router.push(`/tasks/${msg.taskId}/detail`);
+                }}
+              >
+                <ListItemText primary={msg.title} secondary={msg.text} />
+              </ListItemButton>
+            ))}
+          </List>
+        ) : (
+          <Box>
             <ListItemText
-              primary="Default notification ringtone"
-              secondary="Tethys"
+              sx={{ p: 2, color: "InactiveCaptionText" }}
+              primary="Nothing to show"
             />
-          </ListItemButton>
-        </List>
+          </Box>
+        )}
       </Dialog>
     </Box>
   );

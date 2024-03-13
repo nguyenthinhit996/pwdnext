@@ -99,7 +99,7 @@ const DetailTaskComponent = ({ data, error, handleOnClick }) => {
             gap: 1,
           }}
         >
-          <Typography variant="h5">Describe Task</Typography>
+          <Typography variant="h5">Task Detail</Typography>
           <BedgeStatus status={mapTaskStatus(data?.status)} />
         </Box>
         <Typography>{data?.instruction?.description}</Typography>
@@ -117,9 +117,9 @@ const DetailTaskComponent = ({ data, error, handleOnClick }) => {
       >
         <Box>
           {isMobile ? (
-            <p variant="h6">Name Product</p>
+            <p variant="h6">Product</p>
           ) : (
-            <Typography variant="h6">Name Product</Typography>
+            <Typography variant="h6">Product</Typography>
           )}
 
           <StyleTextField
@@ -136,7 +136,7 @@ const DetailTaskComponent = ({ data, error, handleOnClick }) => {
             {isMobile ? (
               <p variant="h6">Delivery date</p>
             ) : (
-              <Typography variant="h6">Delivery date</Typography>
+              <Typography variant="h6">Delivery Date</Typography>
             )}
 
             <StyleTextField
@@ -158,7 +158,6 @@ const DetailTaskComponent = ({ data, error, handleOnClick }) => {
               InputProps={{
                 startAdornment: <QueryBuilderIcon sx={{ marginRight: 1 }} />,
                 sx: { borderRadius: "5px" },
-                endAdornment: <p>hour</p>,
               }}
               value={data?.estimation_in_hours}
             />
@@ -183,9 +182,9 @@ const DetailTaskComponent = ({ data, error, handleOnClick }) => {
 
         <Box>
           {isMobile ? (
-            <p variant="h6">Number phone</p>
+            <p variant="h6">Phone</p>
           ) : (
-            <Typography variant="h6">Number phone</Typography>
+            <Typography variant="h6">Phone</Typography>
           )}
           <StyleTextField
             multiline="true"

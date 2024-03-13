@@ -77,7 +77,12 @@ export default function CustomListItem({ notifications }) {
             })}
           </List>
         ) : (
-          <ListItemText sx={{ p: 2 }} primary="Nothing to show" />
+          <Box sx={{ minWidth: "300px" }}>
+            <ListItemText
+              sx={{ p: 2, color: "InactiveCaptionText" }}
+              primary="Nothing to show"
+            />
+          </Box>
         )}
       </nav>
     </Box>
