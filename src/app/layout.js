@@ -1,6 +1,7 @@
 import ThemeRegistry from "@/theme/ThemeRegistry";
 import ServiceWorkerRegister from "@/context/ServiceWorkerRegister";
 import ServiceWorkerRegisterWorkBox from "@/context/ServiceWorkerRegisterWorkBox";
+import ServiceWorkerRegisterFirebase from "@/context/ServiceWorkerRegisterFirebase";
 import { AuthProvider } from "@/context/AuthContext";
 
 import "@/app/globals.css";
@@ -22,11 +23,13 @@ export default function RootLayout({ children }) {
       <ThemeRegistry>
         {/* <ServiceWorkerRegister> */}
         <ServiceWorkerRegisterWorkBox>
-          <ModalProvider>
-            <AuthProvider>
-              <body>{children}</body>
-            </AuthProvider>
-          </ModalProvider>
+          <ServiceWorkerRegisterFirebase>
+            <ModalProvider>
+              <AuthProvider>
+                <body>{children}</body>
+              </AuthProvider>
+            </ModalProvider>
+          </ServiceWorkerRegisterFirebase>
           {/* </ServiceWorkerRegister> */}
         </ServiceWorkerRegisterWorkBox>
       </ThemeRegistry>

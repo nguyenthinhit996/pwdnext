@@ -23,6 +23,8 @@ import { AuthContext } from "@/context/AuthContext";
 import { requestPermission } from "@/util/Notification";
 import { ModalContext } from "@/context/ModalContext";
 import axiosInstance from "@/config/axiosConfig";
+import { updateTokenDevice } from "@/util/Notification";
+import { getTokenFirebase } from "@/util/Notification";
 
 const ERROR_MSG_MAP = {
   "auth/invalid-credential": "Invalid Email or Password",
@@ -41,6 +43,7 @@ const getUserIdApi = async (uid) => {
 export default function SignIn() {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = React.useState(false);
+  const { handleOnMessage } = useContext(ModalContext);
 
   const router = useRouter();
   const { setUser } = useContext(AuthContext);
@@ -65,6 +68,10 @@ export default function SignIn() {
         setUser({ ...userCredential.user, userId });
         localStorage.setItem("token", userCredential?.user?.accessToken);
         localStorage.setItem("userId", userId);
+
+        console.log("Notification requestPermission now");
+        await requestPermission(handleOnMessage);
+
         router.push("/");
       }
     } catch (error) {

@@ -7,10 +7,12 @@ import {
 // import { messaging as messagingRecieve } from "@/config/firebase";
 import { app } from "@/config/firebase";
 
-// Get registration token. Initially this makes a network call, once retrieved
-// subsequent calls to getToken will return from cache.
+import { getUserId } from "@/util/Utils";
+import { ModalContext } from "@/context/ModalContext";
 
-export const getTokenFirebase = async (cbToken) => {
+import axiosInstance from "@/config/axiosConfig";
+
+export const getTokenFirebase = async () => {
   const messagingResolve = await messaging;
   try {
     getToken(messagingResolve, {
@@ -19,7 +21,7 @@ export const getTokenFirebase = async (cbToken) => {
     })
       .then(async (currentToken) => {
         console.log("currentToken, ", currentToken);
-        cbToken?.(currentToken || "");
+        updateTokenDevice?.(currentToken || "");
       })
       .catch((e) => {
         console.log("error", e);
@@ -42,7 +44,7 @@ const messaging = (async () => {
     return null;
   }
 })();
-export async function requestPermission(cb, cbToken) {
+export async function requestPermission(cb) {
   Notification.requestPermission().then(async (permission) => {
     try {
       if (permission === "granted") {
@@ -55,7 +57,7 @@ export async function requestPermission(cb, cbToken) {
           cb?.(_payload);
           // Xử lý thông báo ở đây
         });
-        getTokenFirebase(messagingResolve, cbToken);
+        await getTokenFirebase();
       } else {
         console.log("Do not have permission!");
       }
@@ -65,24 +67,16 @@ export async function requestPermission(cb, cbToken) {
   });
 }
 
-// const getTokenMessaging = getToken(messaging, {
-//   vapidKey:
-//     "BGTHhYZ0eqCQs4xZXH_PgJmdMz2Q4l1PC0k9VpvuKWUcF5wzujjdOJn_QTlu3KgOx2Ehok5cCeyky66JsWqY4sA",
-// })
-//   .then((currentToken) => {
-//     if (currentToken) {
-//       // Send the token to your server and update the UI if necessary
-//       // ...
-//       console.log("currentToken", currentToken);
-//     } else {
-//       // Show permission request UI
-//       console.log(
-//         "No registration token available. Request permission to generate one."
-//       );
-//       // ...
-//     }
-//   })
-//   .catch((err) => {
-//     console.log("An error occurred while retrieving token. ", err);
-//     // ...
-//   });
+export const updateTokenDevice = async (currentToken) => {
+  const userId = getUserId();
+  console.log("currentToken  ", currentToken);
+
+  const payload = {
+    deviceId: currentToken,
+  };
+
+  console.log("payload  ", payload);
+  console.log("id  ", userId);
+
+  await axiosInstance.put(`/users/${userId}`, payload);
+};

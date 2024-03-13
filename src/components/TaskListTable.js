@@ -10,42 +10,36 @@ import Tooltip from "@mui/material/Tooltip";
 import { useRouter } from "next/navigation";
 import { PulseLoader } from "react-spinners";
 import { useEffect } from "react";
-import { requestPermission, getTokenFirebase } from "@/util/Notification";
+import {
+  requestPermission,
+  getTokenFirebase,
+  updateTokenDevice,
+} from "@/util/Notification";
 import BedgeStatus from "@/common/BadgeStatus";
 import { useContext } from "react";
 import axiosInstance from "@/config/axiosConfig";
 import { Box } from "@mui/material";
 import { ModalContext } from "@/context/ModalContext";
-import { getUserId } from "@/util/Utils";
+import { useState } from "react";
 
 const TaskListTable = ({ tasks = [] }) => {
   const router = useRouter();
   const { handleOnMessage } = useContext(ModalContext);
-  const userId = getUserId();
-
-  const cb2 = async (...rest) => {
-    console.log("rest  ", rest);
-
-    const payload = {
-      deviceId: rest?.[0],
-    };
-
-    console.log("payload  ", payload);
-    console.log("id  ", userId);
-
-    await axiosInstance.put(`/users/${userId}`, payload);
-  };
+  const [isChrome, setIsChrome] = useState(false);
 
   useEffect(() => {
-    if (Notification.permission === "granted") {
-      console.log("Notification permission granted. getToken now");
-      getTokenFirebase(cb2);
-    } else {
-      // User denied permission
-      console.log("Notification permission denied. requestPermission now");
-      requestPermission(handleOnMessage, cb2);
-    }
+    var isChrome =
+      /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+    setIsChrome(isChrome);
+    console.log("window.navigator.userAgent", isChrome);
   }, []);
+
+  useEffect(() => {
+    if (Notification.permission === "granted" && isChrome) {
+      console.log("Notification permission. requestPermission now");
+      requestPermission(handleOnMessage, updateTokenDevice);
+    }
+  }, [isChrome]);
 
   return (
     <Box>
