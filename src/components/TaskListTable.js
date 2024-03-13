@@ -10,7 +10,7 @@ import Tooltip from "@mui/material/Tooltip";
 import { useRouter } from "next/navigation";
 import { PulseLoader } from "react-spinners";
 import { useEffect } from "react";
-import { requestPermission } from "@/util/Notification";
+import { requestPermission, getTokenFirebase } from "@/util/Notification";
 import BedgeStatus from "@/common/BadgeStatus";
 import { useContext } from "react";
 import axiosInstance from "@/config/axiosConfig";
@@ -37,7 +37,14 @@ const TaskListTable = ({ tasks = [] }) => {
   };
 
   useEffect(() => {
-    requestPermission(handleOnMessage, cb2);
+    if (Notification.permission === "granted") {
+      console.log("Notification permission granted. getToken now");
+      getTokenFirebase(cb2);
+    } else {
+      // User denied permission
+      console.log("Notification permission denied. requestPermission now");
+      requestPermission(handleOnMessage, cb2);
+    }
   }, []);
 
   return (

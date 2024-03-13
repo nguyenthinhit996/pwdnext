@@ -10,6 +10,25 @@ import { app } from "@/config/firebase";
 // Get registration token. Initially this makes a network call, once retrieved
 // subsequent calls to getToken will return from cache.
 
+export const getTokenFirebase = async (cbToken) => {
+  const messagingResolve = await messaging;
+  try {
+    getToken(messagingResolve, {
+      vapidKey:
+        "BGTHhYZ0eqCQs4xZXH_PgJmdMz2Q4l1PC0k9VpvuKWUcF5wzujjdOJn_QTlu3KgOx2Ehok5cCeyky66JsWqY4sA",
+    })
+      .then(async (currentToken) => {
+        console.log("currentToken, ", currentToken);
+        cbToken?.(currentToken || "");
+      })
+      .catch((e) => {
+        console.log("error", e);
+      });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 const messaging = (async () => {
   try {
     const isSupportedBrowser = await isSupported();
@@ -36,21 +55,7 @@ export async function requestPermission(cb, cbToken) {
           cb?.(_payload);
           // Xử lý thông báo ở đây
         });
-        try {
-          getToken(messagingResolve, {
-            vapidKey:
-              "BGTHhYZ0eqCQs4xZXH_PgJmdMz2Q4l1PC0k9VpvuKWUcF5wzujjdOJn_QTlu3KgOx2Ehok5cCeyky66JsWqY4sA",
-          })
-            .then(async (currentToken) => {
-              console.log("currentToken, ", currentToken);
-              cbToken?.(currentToken || "");
-            })
-            .catch((e) => {
-              console.log("error", e);
-            });
-        } catch (e) {
-          console.log(e);
-        }
+        getTokenFirebase(messagingResolve, cbToken);
       } else {
         console.log("Do not have permission!");
       }
