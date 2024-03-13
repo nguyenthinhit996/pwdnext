@@ -43,20 +43,16 @@ const listImage = {
   2: "/assets/img/step3.png",
 };
 
-const JourneyComponent = (props) => {
+const JourneyComponent = ({ taskId, data, currentStep }) => {
   const theme = useTheme(); // Access the theme for breakpoint values
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const id = searchParams.get("id");
-  const step = searchParams.get("step");
-  const stepNumber = step ? Number.parseInt(step?.at(-1)) : 1;
   const userIdRef = useRef();
 
   // Define your media queries using MUI's breakpoint functions or custom queries
   const isMobile = useMediaQuery(theme.breakpoints.down("sm")); // Up to medium size screens
 
   const [dataForm, setDataForm] = useState();
-  let currentStepData = dataForm?.steps[dataForm?.currentStep] || {};
+  let currentStepData = dataForm?.steps?.[dataForm?.currentStep] || {};
   const noteRef = useRef();
 
   const handleOnClick = async (currentStepInput) => {
@@ -66,7 +62,8 @@ const JourneyComponent = (props) => {
         status: STEP_STATUS_MAP[dataForm.currentStep],
         note: noteRef.current.value,
       };
-      await axiosInstance.put(`/tasks/${id}/progress`, payload);
+      await axiosInstance.put(`/tasks/${taskId}/progress`, payload);
+      console.log("after put request");
       currentStepInput = currentStepInput + 1;
       console.log("currentStepInput ", currentStepInput);
       if (currentStepInput === dataForm.steps.length) {
@@ -82,6 +79,15 @@ const JourneyComponent = (props) => {
           currentStep: currentStepInput,
         });
       }
+
+      if (navigator?.serviceWorker?.controller) {
+        const msg = {
+          ...payload,
+          taskId: id,
+          url: `https://pwdbackend.onrender.com/users/${user.userId}/tasks`,
+        };
+        navigator.serviceWorker.controller.postMessage(msg);
+      }
     } catch (err) {
       console.log(err);
     }
@@ -92,18 +98,9 @@ const JourneyComponent = (props) => {
   };
 
   useEffect(() => {
-    const getTaskDetail = async () => {
-      try {
-        const { data } = await axiosInstance.get(`/tasks/${id}`);
-        setDataForm({ ...data?.instruction, currentStep: stepNumber - 1 });
-      } catch (err) {
-        console.log(err);
-      }
-    };
-
-    getTaskDetail();
+    setDataForm({ ...data?.instruction, currentStep });
     userIdRef.current = getUserId();
-  }, [id]);
+  }, [data]);
 
   const renderProcess = () => {
     return (

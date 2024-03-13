@@ -159,6 +159,8 @@ const getUserId = () => {
   return userId;
 };
 
+const TASK_LOCAL_KEY = "task";
+
 export {
   mapStatusSelectOption,
   mapWarehouseSelectOption,
@@ -169,4 +171,5 @@ export {
   mapTaskStatus,
   formatDatetime,
   getUserId,
+  TASK_LOCAL_KEY,
 };

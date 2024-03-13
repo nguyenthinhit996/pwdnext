@@ -48,7 +48,20 @@ export default function CustomListItem({ notifications }) {
         {notifications?.length > 0 ? (
           <List sx={{ display: "flex", flexDirection: "column" }}>
             {notifications?.map((msg) => {
-              return (
+              return msg.isRead ? (
+                <ListItemButton
+                  onClick={() => {
+                    handleViewMessage(msg.id);
+                    msg?.taskId && router.push(`/tasks/${msg.taskId}/detail`);
+                  }}
+                >
+                  <ListItemText
+                    sx={{ ml: 4 }}
+                    primary={msg?.title}
+                    secondary={msg?.text}
+                  />
+                </ListItemButton>
+              ) : (
                 <StyledBadge
                   overlap="circular"
                   anchorOrigin={{ vertical: "top", horizontal: "left" }}

@@ -66,7 +66,7 @@ const NavBar = () => {
       >
         <Grid item id="bell-icon">
           <IconButton
-            onClick={notifications.length ? handleOpen : null}
+            onClick={handleOpen}
             anchorEl={anchorEl}
             sx={{ pl: 0, pb: 0 }}
           >

@@ -16,11 +16,22 @@ import { useContext } from "react";
 import axiosInstance from "@/config/axiosConfig";
 import { Box } from "@mui/material";
 import { ModalContext } from "@/context/ModalContext";
+import { getUserId, TASK_LOCAL_KEY } from "@/util/Utils";
 import { useState } from "react";
 
-const TaskListTable = ({ tasks = [] }) => {
+const TaskListTable = ({ tasks = [], isLoadingData = true }) => {
   const router = useRouter();
   const { handleOnMessage } = useContext(ModalContext);
+
+  const handleClickDetail = async (id) => {
+    try {
+      const { data = {} } = await axiosInstance.get(`/tasks/${id}`);
+      localStorage.setItem(TASK_LOCAL_KEY, JSON.stringify(data));
+      router.push("/detail");
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const firstLoad = React.useRef(true);
 
   useEffect(() => {
@@ -29,6 +40,35 @@ const TaskListTable = ({ tasks = [] }) => {
       requestPermission(handleOnMessage, udpateTokenDeviceId);
     }
   }, [firstLoad.current]);
+  const renderEmptyContent = () => {
+    if (isLoadingData && tasks.length === 0) {
+      return (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            width: "100%",
+            marginTop: "30px",
+          }}
+        >
+          <PulseLoader color="#36d7b7" size={15} />
+        </Box>
+      );
+    } else if (!isLoadingData && tasks.length === 0) {
+      return (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            width: "100%",
+            marginTop: "30px",
+          }}
+        >
+          No matching records found
+        </Box>
+      );
+    }
+  };
 
   return (
     <Box>
@@ -62,7 +102,7 @@ const TaskListTable = ({ tasks = [] }) => {
                 <Tooltip title="Details" placement="top-start">
                   <IconButton
                     aria-label="arrow"
-                    onClick={() => router.push(`/tasks/${row.id}/detail`)}
+                    onClick={() => handleClickDetail(row.id)}
                   >
                     <ArrowRightAltIcon />
                   </IconButton>
@@ -72,18 +112,7 @@ const TaskListTable = ({ tasks = [] }) => {
           ))}
         </TableBody>
       </Table>
-      {tasks.length === 0 ? (
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            width: "100%",
-            marginTop: "30px",
-          }}
-        >
-          <PulseLoader color="#36d7b7" size={15} />
-        </Box>
-      ) : null}
+      {renderEmptyContent()}
     </Box>
   );
 };

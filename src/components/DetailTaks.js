@@ -52,8 +52,6 @@ const DetailTaskComponent = ({ data, error, handleOnClick }) => {
 
   const renderButton = () => {
     switch (data?.status) {
-      case "TODO":
-        return <ButtonPrimary onClick={handleOnClick}>Start</ButtonPrimary>;
       case "DRAFT":
         return <ButtonPrimary onClick={handleOnClick}>Start</ButtonPrimary>;
       case "COMPLETED":
@@ -61,16 +59,7 @@ const DetailTaskComponent = ({ data, error, handleOnClick }) => {
           <ButtonPrimary onClick={() => router.back()}>Back</ButtonPrimary>
         );
       default:
-        return (
-          <ButtonPrimary
-            onClick={() => {
-              let url = `/journey?id=${data.id}&step=${data?.status}`;
-              router.push(url);
-            }}
-          >
-            Continue
-          </ButtonPrimary>
-        );
+        return <ButtonPrimary onClick={handleOnClick}>Continue</ButtonPrimary>;
     }
   };
 

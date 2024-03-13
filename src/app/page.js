@@ -24,6 +24,7 @@ const TaskList = () => {
   const [filteredStatus, setFilteredStatus] = useState("ALL");
   const [filteredWarehouse, setFilteredWarehouse] = useState("ALL");
   const [data, setData] = useState([]);
+  const [isLoadingData, setLoadingData] =  useState(true);
 
   const statusValues = useMemo(() => mapStatusSelectOption(), []);
   const warehouseValues = useMemo(() => mapWarehouseSelectOption(data), [data]);
@@ -32,10 +33,12 @@ const TaskList = () => {
     const userId = getUserId();
     (async () => {
       try {
+        setLoadingData(true)
         const { data: resData } = await axiosInstance.get(
           `/users/${userId}/tasks`
         );
         setData(mapStatusApiResult(resData));
+        setLoadingData(false)
       } catch (error) {}
     })();
   }, []);
@@ -123,7 +126,7 @@ const TaskList = () => {
         </Box>
 
         <Box sx={{ display: { xs: "none", sm: "block" } }}>
-          <TaskListTable tasks={finalData} />
+          <TaskListTable tasks={finalData} isLoadingData={isLoadingData} />
         </Box>
       </Box>
     </Guard>

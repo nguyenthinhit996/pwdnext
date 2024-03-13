@@ -1,5 +1,9 @@
-importScripts("https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js");
-importScripts("https://www.gstatic.com/firebasejs/8.0.0/firebase-messaging.js");
+importScripts(
+  "https://cdnjs.cloudflare.com/ajax/libs/firebase/10.8.1/firebase-app-compat.min.js"
+);
+importScripts(
+  "https://cdnjs.cloudflare.com/ajax/libs/firebase/10.8.1/firebase-messaging-compat.min.js"
+);
 
 firebase.initializeApp({
   apiKey: "AIzaSyAia2Xqdgzh2SIE_waNbMXVZYW6_2Vrfwk",
@@ -13,7 +17,7 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-messaging.setBackgroundMessageHandler(function (payload) {
+messaging.onBackgroundMessage(function (payload) {
   const notificationTitle = payload.notification.title;
   const notificationOptions = {
     body: payload.notification.body,

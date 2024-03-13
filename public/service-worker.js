@@ -1,12 +1,15 @@
 // the cache version gets updated every time there is a new deployment
 const CACHE_VERSION = 1;
 const CURRENT_CACHE = `main-${CACHE_VERSION}`;
+const indexedDBName = "WASMOfflinePWA";
+const objectStoreName = "OfflinePostRequests";
 
 // these are the routes we are going to cache for offline support
 const cacheFiles = [
   "/",
   "/login",
   "/tasks",
+  "/detail",
   "/next.svg",
   "/vercel.svg",
   "/manifest.json",
@@ -58,7 +61,7 @@ self.addEventListener("activate", (evt) => {
 });
 
 // on install we download the routes we want to cache for offline
-self.addEventListener("install", (evt) =>
+self.addEventListener("install", (evt) => {
   evt.waitUntil(
     caches.open(CURRENT_CACHE).then((cache) => {
       return cache.addAll(
@@ -67,13 +70,19 @@ self.addEventListener("install", (evt) =>
         )
       );
     })
-  )
-);
+  );
+  /*
+   ** check network state after certain time interval
+   ** If online for the first time, create an indexed db and a table
+   ** If online after going offline, hit all requests saved in indexed table to server and empty the table
+   */
+  checkNetworkState();
+});
 
 // cache the current page to make it available for offline
 const update = (request, response) => {
   console.log("const update = (request, response)", response);
-  caches.open(CURRENT_CACHE).then((cache) => cache.put(request, response));
+  caches.open(CURRENT_CACHE).then((cache) => cache.put(request.url, response));
 };
 
 // fetch the resource from the network
@@ -110,10 +119,182 @@ const fromCache = async (request) => {
 // general strategy when making a request (eg if online try to fetch it
 // from the network with a timeout, if something fails serve from cache)
 self.addEventListener("fetch", (evt) => {
-  if (evt.request.method !== "GET") {
+  if (evt.request.method === "GET") {
+    evt.respondWith(
+      fromNetwork(evt.request, 10000).catch(() => fromCache(evt.request))
+    );
+  } else if (evt.request.method === "PUT") {
+    console.log("PUT request ", evt.request.url);
+    var reqUrl = evt.request.url;
+    var authHeader = evt.request.headers.get("Authorization");
+
+    if (!navigator.onLine) {
+      evt.respondWith(
+        Promise.resolve(evt.request.text()).then((payload) => {
+          console.log("PUT request offline ");
+
+          // if offline, save request details to IndexedDB to be sent later
+          saveIntoIndexedDB(reqUrl, authHeader, payload);
+
+          // return dummy response so application can continue execution
+          const myOptions = { status: 200, statusText: "Fabulous" };
+          return new Response(payload, myOptions);
+        })
+      );
+    }
+
+    // evt.respondWith(
+    //   Promise.resolve(evt.request.text()).then((payload) => {
+    //     // if application is online, send request over network
+    //     // if (navigator.onLine) {
+    //     //   return fetch(reqUrl, {
+    //     //     method: "PUT",
+    //     //     headers: {
+    //     //       Accept: "application/json",
+    //     //       "Content-Type": "application/json",
+    //     //       Authorization: authHeader,
+    //     //     },
+    //     //     body: payload,
+    //     //   });
+    //     // } else {
+    //     //   console.log("PUT request offline ");
+
+    //     //   // if offline, save request details to IndexedDB to be sent later
+    //     //   saveIntoIndexedDB(reqUrl, authHeader, payload);
+
+    //     //   // return dummy response so application can continue execution
+    //     //   const myOptions = { status: 200, statusText: "Fabulous" };
+    //     //   return new Response(payload, myOptions);
+    //     // }
+
+    //     // TODO solution 2
+    //     // if (!navigator.onLine) {
+    //     //   console.log("PUT request offline ");
+
+    //     //   // if offline, save request details to IndexedDB to be sent later
+    //     //   saveIntoIndexedDB(reqUrl, authHeader, payload);
+
+    //     //   // return dummy response so application can continue execution
+    //     //   const myOptions = { status: 200, statusText: "Fabulous" };
+    //     //   return new Response(payload, myOptions);
+    //     // }
+    //   })
+    // );
+  }
+});
+
+function saveIntoIndexedDB(url, authHeader, payload) {
+  const DBOpenRequest = indexedDB.open(indexedDBName);
+
+  DBOpenRequest.onsuccess = (event) => {
+    // create request object
+    const postRequest = [
+      {
+        url: url,
+        authHeader: authHeader,
+        payload: payload,
+      },
+    ];
+
+    db = event.target.result;
+    const transaction = db.transaction([objectStoreName], "readwrite");
+    const objectStore = transaction.objectStore(objectStoreName);
+    const objectStoreRequest = objectStore.add(postRequest[0]);
+
+    objectStoreRequest.onsuccess = (event) => {
+      console.log("Request saved to IndexedDB");
+    };
+  };
+}
+
+function checkNetworkState() {
+  setInterval(function () {
+    if (navigator.onLine) {
+      sendOfflinePostRequestsToServer();
+    }
+  }, 3000);
+}
+
+async function sendOfflinePostRequestsToServer() {
+  const DBOpenRequest = indexedDB.open(indexedDBName);
+
+  // create the object store if doesn't exist
+  DBOpenRequest.onupgradeneeded = (event) => {
+    db = event.target.result;
+
+    if (!db.objectStoreNames.contains(objectStoreName)) {
+      objectStore = db.createObjectStore(objectStoreName, {
+        keyPath: "id",
+        autoIncrement: true,
+      });
+    }
+  };
+
+  DBOpenRequest.onsuccess = (event) => {
+    db = event.target.result;
+
+    const transaction = db.transaction([objectStoreName]);
+    const objectStore = transaction.objectStore(objectStoreName);
+    var allRecords = objectStore.getAll(); // get all records
+    let currentRecord = null;
+
+    allRecords.onsuccess = function () {
+      if (allRecords.result && allRecords.result.length > 0) {
+        console.log("IndexedDB records: ", allRecords.result);
+        // only submit the last item in indexedDB(due to its status is the latest)
+        lastRecord = allRecords.result[allRecords.result.length - 1];
+        fetch(lastRecord.url, {
+          method: "PUT",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: lastRecord.authHeader,
+          },
+          body: lastRecord.payload,
+        });
+        const transaction = db.transaction([objectStoreName], "readwrite");
+        const objectStore = transaction.objectStore(objectStoreName);
+        // remove details from IndexedDB
+        objectStore.clear();
+      }
+    };
+  };
+}
+
+self.addEventListener("message", async (event) => {
+  console.log(event.data);
+  const STEP_STATUS_MAP = {
+    STEP2: "IN_PROGRESS",
+    STEP3: "IN_PROGRESS",
+    COMPLETED: "COMPLETED",
+  };
+  const { url, userId, status, taskId } = event.data;
+
+  if (url) {
+    const cacheStorage = await caches.open(CURRENT_CACHE);
+    const cachedResponse = await cacheStorage.match(url);
+    if (!cachedResponse || !cachedResponse.ok) {
+      console.log(`${event.data} is empty`);
+      return;
+    }
+    const jsonRes = await cachedResponse.json();
+    if (jsonRes?.length > 0) {
+      jsonRes.forEach((t) => {
+        if (t.id === taskId) {
+          t.status = STEP_STATUS_MAP[status];
+        }
+      });
+    }
+    console.log(jsonRes);
+    await updateExistingCache(url, jsonRes);
+  }
+});
+
+async function updateExistingCache(key, updatedValue) {
+  const cacheStorage = await caches.open(CURRENT_CACHE);
+  const cachedResponse = await cacheStorage.match(key);
+  if (!cachedResponse || !cachedResponse.ok) {
     return;
   }
-  evt.respondWith(
-    fromNetwork(evt.request, 10000).catch(() => fromCache(evt.request))
-  );
-});
+  cacheStorage.put(key, Response.json(updatedValue));
+}
